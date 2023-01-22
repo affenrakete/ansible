@@ -1,5 +1,5 @@
 ---
-- name: 'reload wireguard'
+- name: Reload wireguard
   ansible.builtin.service:
     name: "wg-quick@{{ wg_int['name'] }}"
     state: 'reloaded'

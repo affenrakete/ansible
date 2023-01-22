@@ -25,10 +25,13 @@
     mode: 0644
   with_items:
     - jail.local
- 
+  notify:
+    - Reload fail2ban
+
 - name: fail2ban -- enable Service, start and reload
   ansible.builtin.service:
     name: fail2ban
     state: started
     enabled: true
-  notify: reload fail2ban
+  notify:
+    - Reload fail2ban

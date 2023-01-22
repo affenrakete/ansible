@@ -24,13 +24,12 @@
       line: "UseDNS {{ ssh__usedns }}"
     - regexp: "^PermitEmptyPasswords"
       line: "PermitEmptyPasswords {{ ssh__permit_empty_password }}"
-    - regexp: "^ChallengeResponseAuthentication"
-      line: "ChallengeResponseAuthentication {{ ssh__challenge_response_auth }}"
     - regexp: "^GSSAPIAuthentication"
       line: "GSSAPIAuthentication {{ ssh__gss_api_authentication }}"
     - regexp: "^X11Forwarding"
       line: "X11Forwarding {{ ssh__x11_forwarding }}"
-  notify: restart ssh
+  notify:
+    - Restart SSH
 
 - name: SSH -- Add allowed users
   lineinfile:
@@ -42,7 +41,8 @@
     validate: 'sshd -T -f %s'
     mode: 0644
   when: ssh__allowed_users | length > 0
-  notify: restart ssh
+  notify:
+    - Restart SSH
 
 - name: SSH -- Add allowed groups
   lineinfile:
@@ -54,4 +54,5 @@
     validate: 'sshd -T -f %s'
     mode: 0644
   when: ssh__allowed_groups | length > 0
-  notify: restart ssh
+  notify:
+    - Restart SSH

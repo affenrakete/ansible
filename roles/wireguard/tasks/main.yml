@@ -60,7 +60,8 @@
   loop: "{{ wireguard__interfaces__merged }}"
   loop_control:
     loop_var: 'wg_int'
-  notify: 'reload wireguard'
+  notify:
+    - Reload wireguard
 
 - name: Wireguard -- enable Service and start
   ansible.builtin.service:
