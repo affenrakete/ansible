@@ -5,7 +5,6 @@ host_vars/*
 roles/*
 !roles/haproxy
 !roles/hardening
-!roles/mailcow
 !roles/nfs
 !roles/wireguard
 vars/*
