@@ -2,7 +2,12 @@ action_plugins/*
 collections/*
 group_vars/*
 host_vars/*
-roles/nickjj.docker/*
+roles/*
+!roles/haproxy
+!roles/hardening
+!roles/mailcow
+!roles/nfs
+!roles/wireguard
 vars/*
 inventory*.yml
 !inventory-example.yml
