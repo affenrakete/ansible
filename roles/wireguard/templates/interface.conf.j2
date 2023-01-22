@@ -1,0 +1,21 @@
+# {{ ansible_managed }}
+[Interface]
+Address = {{ wg_int['address'] }}
+{% if wg_int['listen_port'] is defined %}
+ListenPort = {{ wg_int['listen_port'] }}
+{% endif -%}
+PrivateKey = {{ wg_int['private_key'] }}
+#PublicKey = {{ wg_int['public_key'] }}
+{% if wg_int['post_up'] is defined %}
+PostUp = {{ wg_int['post_up'] }}
+{% endif -%}
+{% if wg_int['post_down'] is defined %}
+PostDown = {{ wg_int['post_down'] }}
+{% endif -%}
+
+
+###
+# Peers section
+# Place any manual peers in {{ wireguard__basedir }}/{{ wg_int['name'] }}.conf.d
+###
+

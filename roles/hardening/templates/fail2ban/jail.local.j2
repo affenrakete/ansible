@@ -1,0 +1,13 @@
+[DEFAULT]
+{% for key, value in fail2ban__jaild__merged.default.items() if not key == "name"  %}
+{{ key }} = {{ value }}
+{% endfor %}
+
+# Custom jails
+{% for key, jaild in fail2ban__jaild__merged.items() if not key == "default" %}
+[{{ jaild.name }}]
+{% for key, value in jaild.items() if not key == "name" %}
+{{ key }} = {{ value }}
+{% endfor %}
+
+{% endfor %}

@@ -1,0 +1,24 @@
+---
+# APT
+- include_tasks: apt.yml
+  when: apt__enabled | bool
+
+# sudo
+- include_tasks: sudo.yml
+  when: sudo__enabled | bool
+
+# SSH
+- include_tasks: ssh.yml
+  when: ssh__enabled | bool
+
+# unattended-upgrades
+- include_tasks: unattended_upgrades.yml
+  when: unattended_upgrades__enabled | bool
+
+#ufw
+- include_tasks: ufw.yml
+  when: ufw__enabled | bool
+
+#fail2ban
+- include_tasks: fail2ban.yml
+  when: fail2ban__enabled | bool

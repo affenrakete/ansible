@@ -1,0 +1,29 @@
+---
+- name: haproxy -- merge vars
+  merge_vars:
+    suffix_to_merge: haproxy__to_merge
+    merged_var_name: haproxy__merged
+    expected_type: dict
+    recursive_dict_merge: true
+
+- name: haproxy -- install packages
+  ansible.builtin.package:
+    name: haproxy
+    state: present
+
+- name: haproxy -- template /etc/haproxy/haproxy.cfg
+  ansible.builtin.template:
+    src: ./{{ item }}.j2
+    dest: /etc/haproxy/{{ item }}
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - haproxy.cfg
+
+- name: haproxy -- enable Service, start and reload
+  ansible.builtin.service:
+    name: haproxy
+    state: started
+    enabled: true
+  notify: restart haproxy

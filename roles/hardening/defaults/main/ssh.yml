@@ -1,0 +1,12 @@
+---
+ssh__port: 22
+ssh__password_authentication: "no"
+ssh__permit_root_login: "no"
+ssh__usedns: "no"
+ssh__permit_empty_password: "no"
+ssh__challenge_response_auth: "no"
+ssh__gss_api_authentication: "no"
+ssh__x11_forwarding: "no"
+ssh__allowed_users: []
+ssh__allowed_groups: []
+ssh__config_path: /etc/ssh/sshd_config

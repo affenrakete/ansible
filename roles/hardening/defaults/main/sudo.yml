@@ -1,0 +1,3 @@
+---
+sudo__sudoers_passwordless: []
+sudo__sudoers_passworded: []

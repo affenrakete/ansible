@@ -1,0 +1,10 @@
+action_plugins/*
+collections/*
+group_vars/*
+host_vars/*
+roles/nickjj.docker/*
+vars/*
+inventory*.yml
+!inventory-example.yml
+playbook*.yml
+!playbook-example.yml

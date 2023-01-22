@@ -1,0 +1,7 @@
+---
+apt__enabled: true
+ssh__enabled: true
+sudo__enabled: true
+unattended_upgrades__enabled: true
+ufw__enabled: true
+fail2ban__enabled: true

@@ -1,0 +1,23 @@
+Unattended-Upgrade::Automatic-Reboot "{{ unattended_upgrades__reboot }}";
+Unattended-Upgrade::Automatic-Reboot-Time "{{ unattended_upgrades__reboot_time }}";
+
+Unattended-Upgrade::Allowed-Origins {
+{% if unattended_upgrades__security %}
+        "${distro_id} ${distro_codename}-security";
+{% endif %}
+{% if unattended_upgrades__updates %}
+        "${distro_id} ${distro_codename}-updates";
+{% endif %}
+};
+
+Unattended-Upgrade::Package-Blacklist{
+{% for package in unattended_upgrades__blacklist %}
+      "{{package}}";
+{% endfor %}
+}
+
+{% if unattended_upgrades__allorigins %}
+Unattended-Upgrade::Origins-Pattern {
+    "origin=*";
+};
+{% endif %}

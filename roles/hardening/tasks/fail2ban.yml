@@ -1,0 +1,34 @@
+---
+- name: fail2ban -- merge jail.d vars
+  merge_vars:
+    suffix_to_merge: fail2ban__jaild__to_merge
+    merged_var_name: fail2ban__jaild__merged
+    expected_type: dict
+    recursive_dict_merge: true
+
+- name: fail2ban -- install packages
+  ansible.builtin.package:
+    name: fail2ban
+    state: present
+
+- name: fail2ban -- remove "/etc/fail2ban/jail.d/defaults-debian.conf"
+  ansible.builtin.file:
+    path: /etc/fail2ban/jail.d/defaults-debian.conf
+    state: absent
+
+- name: fail2ban -- template "/etc/fail2ban/jail.local"
+  ansible.builtin.template:
+    src: fail2ban/{{ item }}.j2
+    dest: /etc/fail2ban/{{ item }}
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - jail.local
+ 
+- name: fail2ban -- enable Service, start and reload
+  ansible.builtin.service:
+    name: fail2ban
+    state: started
+    enabled: true
+  notify: reload fail2ban

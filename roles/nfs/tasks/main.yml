@@ -1,0 +1,32 @@
+---
+- name: NFS -- merge vars
+  merge_vars:
+    suffix_to_merge: nfs__mounts__to_merge
+    merged_var_name: nfs__mounts__merged
+    expected_type: dict
+    recursive_dict_merge: true
+
+- name: NFS -- install packages
+  ansible.builtin.package:
+    name:
+      - nfs-common
+      - nfs4-acl-tools
+    state: present
+
+- name: NFS -- check mountpoint exist
+  ansible.builtin.file:
+    path: "{{ item.value.mountpoint }}"
+    state: directory
+    mode: "{{ item.value.permission }}"
+    owner: "{{ item.value.owner }}"
+    group: "{{ item.value.group }}"
+  loop: "{{ nfs__mounts__merged | dict2items }}"
+    
+- name: NFS -- mount network share
+  ansible.builtin.mount:
+    src: "{{ item.value.source }}"
+    path: "{{ item.value.mountpoint }}"
+    fstype: nfs
+    opts: "{{ item.value.options }}"
+    state: mounted
+  loop: "{{ nfs__mounts__merged | dict2items }}"

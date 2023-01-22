@@ -1,0 +1,50 @@
+---
+- name: UFW -- merge rules
+  merge_vars:
+    suffix_to_merge: ufw__rules__to_merge
+    merged_var_name: ufw__rules_merged
+    expected_type: dict
+    recursive_dict_merge: true
+
+- name: UFW -- install packages
+  ansible.builtin.package:
+    name: ufw
+    state: present
+ 
+- name: UFW -- reset
+  ufw:
+    state: reset
+
+- name: UFW -- set logging
+  ufw:
+    logging: "{{ ufw__logging }}"
+
+- name: UFW -- set default incoming policy
+  ufw:
+    default: "{{ ufw__default_incoming_policy }}"
+    direction: incoming
+
+- name: UFW -- set default outgoing policy
+  ufw:
+    default: "{{ ufw__default_outgoing_policy }}"
+    direction: outgoing
+
+- name: UFW -- set rules
+  ufw:
+    rule: "{{ ufw__rules_merged[item]['rule'] }}"
+    interface: "{{ ufw__rules_merged[item]['interface'] | default('') }}"
+    direction: "{{ ufw__rules_merged[item]['direction'] | default('in') }}"
+    from_ip: "{{ ufw__rules_merged[item]['from_ip'] | default('any') }}"
+    to_ip: "{{ ufw__rules_merged[item]['to_ip'] | default('any') }}"
+    from_port: "{{ ufw__rules_merged[item]['from_port'] | default('') }}"
+    to_port: "{{ ufw__rules_merged[item]['to_port'] | default('') }}"
+    proto: "{{ ufw__rules_merged[item]['proto'] | default('any') }}"
+    route: "{{ ufw__rules_merged[item]['route'] | default(omit) }}"
+    log: "{{ ufw__rules_merged[item]['log'] | default(false) }}"
+    comment: "{{ ufw__rules_merged[item]['comment'] | default(omit) }}"
+    delete: "{{ ufw__rules_merged[item]['delete'] | default('false') }}"
+  with_items: "{{ ufw__rules_merged.keys() | list }}"
+
+- name: UFW -- enable Service and start
+  ufw:
+    state: enabled

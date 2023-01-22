@@ -1,0 +1,10 @@
+---
+ufw__default_incoming_policy: deny
+ufw__default_outgoing_policy: allow
+ufw__logging: 'on'
+
+default_ufw__rules__to_merge:
+  ssh:
+    to_port: '22'
+    rule: allow
+    proto: tcp

@@ -1,0 +1,18 @@
+# {{ ansible_managed }}
+{% for peer in wg_peer['peers'] %}
+
+[Peer]
+# {{ peer['name'] }}
+{% if peer['listen_adress'] is defined and peer['listen_port'] is defined%}
+Endpoint = {{ peer['listen_address'] }}:{{ peer['listen_port'] }}
+{% endif %}
+PublicKey = {{ peer['public_key'] }}
+{% if peer['preshared_key'] is defined %}
+PreSharedKey = {{ peer['preshared_key'] }}
+{% endif %}
+AllowedIPs = {{ peer['allowed_ips'] }}
+{% if peer['keepalive_interval'] is defined %}
+PersistentKeepalive = {{ peer['keepalive_interval'] }}
+{% endif %}
+
+{% endfor %}

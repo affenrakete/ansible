@@ -1,0 +1,101 @@
+global
+        log /dev/log    local0
+        log /dev/log    local1 notice
+        chroot /var/lib/haproxy
+        stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
+        stats timeout 30s
+        user haproxy
+        group haproxy
+        daemon
+
+        # Default SSL material locations
+        ca-base /etc/ssl/certs
+        crt-base /etc/ssl/private
+
+        # See: https://ssl-config.mozilla.org/#server=haproxy&server-version=2.0.3&config=intermediate
+        ssl-default-bind-ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-R>
+        ssl-default-bind-ciphersuites TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256
+        ssl-default-bind-options ssl-min-ver TLSv1.2 no-tls-tickets
+
+defaults
+        log     global
+        mode    http
+        option  httplog
+        option  dontlognull
+
+        timeout connect 5000
+        timeout client  50000
+        timeout server  50000
+        
+        errorfile 400 /etc/haproxy/errors/400.http
+        errorfile 403 /etc/haproxy/errors/403.http
+        errorfile 408 /etc/haproxy/errors/408.http
+        errorfile 500 /etc/haproxy/errors/500.http
+        errorfile 502 /etc/haproxy/errors/502.http
+        errorfile 503 /etc/haproxy/errors/503.http
+        errorfile 504 /etc/haproxy/errors/504.http
+
+#
+# Frontend
+#
+{% if haproxy__merged.frontend.http is defined %}
+frontend http
+        mode http
+        option httplog
+        bind :::{{ http__port }} v4v6
+
+{% for key, frontend in haproxy__merged.frontend.http.items() %}
+        # {{ key }}
+        acl domain_{{ key }} hdr(host) -i {{ frontend.domain }}
+        use_backend {{ frontend.use_backend }} if domain_{{ key }}
+{% endfor %}
+
+{% if haproxy__default_ssl %}
+        # Alles andere auf HTTPS
+        default_backend http_https
+{% endif %}
+{% endif %}
+
+{% if haproxy__merged.frontend.https is defined %}
+frontend https
+        mode tcp
+        option tcplog
+        bind :::{{ https__port }} v4v6
+
+        acl tls req.ssl_hello_type 1
+        tcp-request inspect-delay 5s
+        tcp-request content accept if tls
+
+{% for key, frontend in haproxy__merged.frontend.https.items() %}
+        # {{ key }}
+        acl domain_{{ key }} req.ssl_sni -i {{ frontend.domain }}
+        use_backend {{ frontend.use_backend }} if domain_{{ key }}
+
+{% endfor %}
+{% endif %}
+
+#
+# Backend
+#
+
+{% if haproxy__merged.backend is defined %}
+{% for key, backend in haproxy__merged.backend.items() %}
+# {{ key }}
+backend {{ key }}
+{% if backend.proxy_ssl %}
+        mode tcp
+        option ssl-hello-chk
+{% else %}
+        mode http
+{% endif %}
+        server {{ backend.domain }} {{ backend.address }} check {% if backend.proxy_ssl %}send-proxy-v2-ssl{% endif %}
+
+{% endfor %}
+{% endif %}
+
+{% if haproxy__default_ssl %}
+# Alles andere auf HTTPS
+backend http_https
+        mode http
+        http-request redirect scheme https unless { ssl_fc }
+{% endif %}

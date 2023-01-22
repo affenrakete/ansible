@@ -1,0 +1,73 @@
+---
+- name: Wireguard -- merge vars
+  merge_vars:
+    suffix_to_merge: wireguard__interfaces__to_merge
+    merged_var_name: wireguard__interfaces__merged
+    expected_type: list
+    recursive_dict_merge: true
+
+- name: Wireguard -- install packages
+  ansible.builtin.package:
+    name:
+      - wireguard-tools
+      - procps
+      - iptables
+
+- name: Wireguard -- create config dir
+  ansible.builtin.file:
+    path: "{{ wireguard__basedir }}/{{ wg_int['name'] }}.conf.d"
+    state: 'directory'
+    mode: 0700
+    owner: 'root'
+    group: 'root'
+  loop: "{{ wireguard__interfaces__merged }}"
+  no_log: "{{ wireguard__no_log }}"
+  loop_control:
+    loop_var: 'wg_int'
+
+- name: Wireguard -- template interface config
+  ansible.builtin.template:
+    src: 'interface.conf.j2'
+    dest: "{{ wireguard__basedir }}/{{ wg_int['name'] }}.conf.d/00_interface.conf"
+    mode: 0600
+    owner: 'root'
+    group: 'root'
+  no_log: "{{ wireguard__no_log }}"
+  loop: "{{ wireguard__interfaces__merged }}"
+  loop_control:
+    loop_var: 'wg_int'
+
+- name: Wireguard -- template peer config
+  ansible.builtin.template:
+    src: 'peer.conf.j2'
+    dest: "{{ wireguard__basedir }}/{{ wg_peer['name'] }}.conf.d/01_peers.conf"
+    mode: 0600
+    owner: 'root'
+    group: 'root'
+  no_log: "{{ wireguard__no_log }}"
+  loop: "{{ wireguard__interfaces__merged }}"
+  loop_control:
+    loop_var: 'wg_peer'
+
+- name: Wireguard -- assemble config file
+  ansible.builtin.assemble:
+    dest: "{{ wireguard__basedir }}/{{ wg_int['name'] }}.conf"
+    src: "{{ wireguard__basedir }}/{{ wg_int['name'] }}.conf.d"
+    mode: 0600
+    owner: 'root'
+    group: 'root'
+  no_log: "{{ wireguard__no_log }}"
+  loop: "{{ wireguard__interfaces__merged }}"
+  loop_control:
+    loop_var: 'wg_int'
+  notify: 'reload wireguard'
+
+- name: Wireguard -- enable Service and start
+  ansible.builtin.service:
+    name: "wg-quick@{{ wg_int['name'] }}"
+    state: 'started'
+    enabled: true
+  loop: "{{ wireguard__interfaces__merged }}"
+  no_log: "{{ wireguard__no_log }}"
+  loop_control:
+    loop_var: 'wg_int'

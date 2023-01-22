@@ -1,0 +1,15 @@
+---
+default_fail2ban__jaild__to_merge:
+  default:
+    name: "DEFAULT"
+    bantime: "3h"
+    findtime: "30m"
+    maxretry: 5
+    backend: "auto"
+    usedns: "warn"
+    enabled: "false"
+  sshd:
+    name: "SSHD"
+    enabled: "true"
+    port: "22"
+    filter: "sshd"

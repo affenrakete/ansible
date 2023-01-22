@@ -1,0 +1,7 @@
+unattended_upgrades__enabled: true
+unattended_upgrades__blacklist: []
+unattended_upgrades__security: true
+unattended_upgrades__updates: true
+unattended_upgrades__allorigins: true
+unattended_upgrades__reboot: "false"
+unattended_upgrades__reboot_time: "03:00"
