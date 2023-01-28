@@ -5,7 +5,7 @@
     state: 'reloaded'
   register: 'reloaded_wireguard'
   until: reloaded_wireguard is successful
-  retries: 3 # When testing with Molecule in Docker, reloading doesn't always go in one go
+  retries: 3
   delay: 5
   no_log: "{{ wireguard__no_log }}"
   loop: "{{ wireguard__interfaces__merged }}"
